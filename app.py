@@ -20,11 +20,11 @@ Session(app)
 @app.route('/')
 @app.route('/home')
 def homepage():
-
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing user-library-read user-modify-playback-state',
-                                               cache_handler=cache_handler,
-                                               show_dialog=True)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(
+        scope='user-read-currently-playing user-library-read user-modify-playback-state',
+        cache_handler=cache_handler,
+        show_dialog=True)
 
     if request.args.get("code"):
         # Step 2. Being redirected from Spotify auth page
@@ -48,45 +48,10 @@ def homepage():
     #     f'<a href="/current_user">me</a>' \
 
 
-
 @app.route('/sign_out')
 def sign_out():
     session.pop("token_info", None)
     return redirect('/')
-
-
-@app.route('/playlists')
-def playlists():
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    return spotify.current_user_playlists()
-
-
-@app.route('/currently_playing')
-def currently_playing():
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    track = spotify.current_user_playing_track()
-    if not track is None:
-        return track
-    return "No track currently playing."
-
-
-@app.route('/current_user')
-def current_user():
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    return spotify.current_user()
 
 
 @app.route('/play')
@@ -100,7 +65,6 @@ def player():
 
     # tracks = spotify.current_user_saved_tracks()
     # pprint.pprint(tracks['items'][0]['track'])
-
 
     users_mood = get_users_mood([[1, 0.4]])
     print(users_mood)
@@ -133,23 +97,6 @@ def pause():
     return render_template('player.html', )
 
 
-
-
-
-
-
-
-
-
-
-
-
-'''
-Following lines allow application to be run more conveniently with
-`python app.py` (Make sure you're using python3)
-(Also includes directive to leverage pythons threading capacity.)
-'''
 if __name__ == '__main__':
-
     app.run(threaded=True, port=int(os.environ.get("PORT",
                                                    os.environ.get("SPOTIPY_REDIRECT_URI", "8080").split(":")[-1])))
