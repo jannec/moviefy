@@ -1,9 +1,13 @@
 import os
+import pprint
 import sys, random
+
+import requests
 from flask import Flask, session, request, redirect, render_template
 from flask_session import Session
 import spotipy
 
+from track_mood_processing import get_proper_track, get_track_info
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64)
@@ -17,7 +21,7 @@ Session(app)
 def homepage():
 
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',
+    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing user-library-read user-modify-playback-state',
                                                cache_handler=cache_handler,
                                                show_dialog=True)
 
@@ -93,21 +97,22 @@ def player():
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
 
-    # start_playback
-    track = get_proper_track(mood, tracks)
+    # tracks = spotify.current_user_saved_tracks()
+    # pprint.pprint(tracks['items'][0]['track'])
 
-    track_name, album, artist, cover_url = get_track_info(track)
+    track_id = get_proper_track("Happy", spotify)
 
-    device =
+    track_name, album, artist, cover_url = get_track_info(track_id, spotify)
 
-    spotify.start_playback()
+    # device =
+
+    spotify.start_playback(uris=[track_id])
 
     return render_template('player.html',
                            track_name=track_name,
                            album=album,
                            artist=artist,
                            cover_url=cover_url)
-
 
 
 @app.route('/pause')
@@ -119,38 +124,18 @@ def pause():
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
 
-    # pause_playback
-
+    spotify.pause_playback()
 
     return render_template('player.html', )
 
 
-def get_user_tracks(spotifyObject):
-
-    liked_tracks = spotifyObject.current_user_saved_tracks(limit=50)
-    return liked_tracks
 
 
-def get_track_info(track):
-    artist = track['item']['artists'][0]['name']
-    album = track['item']['album'][0]['name']
-    track_name = track['item']['name']
-    cover_url = track['images'][0]['url']
-    return track_name, album, artist, cover_url
 
 
-def get_tracks_mood(tracks):
-    # model that categorises tracks
-    # return tracks_dict
-    pass
 
 
-def get_proper_track(mood, tracks):
 
-    mood_tracks_dict = get_tracks_mood(tracks)
-    song_selection = mood_tracks_dict[mood].pop(random.randint(0, len(mood_tracks_dict[mood])))
-
-    return song_selection
 
 
 
