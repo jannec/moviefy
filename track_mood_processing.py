@@ -1,12 +1,12 @@
 import pickle
 import random
-import ast
 
 import sklearn
 
 import numpy as np
 
-song_mood_model = 'model/Keras-Classification'
+song_mood_model = 'models/Keras-Classification'
+
 
 def get_model():
     with open(song_mood_model, 'rb') as f:
@@ -15,7 +15,6 @@ def get_model():
 
 
 def get_songs_features(track_id, sp):
-
     meta = sp.track(track_id)
     features = sp.audio_features(track_id)
 
@@ -43,8 +42,9 @@ def get_songs_features(track_id, sp):
 
     track = [name, album, artist, track_id, release_date, popularity, length, danceability, acousticness,
              energy, instrumentalness, liveness, valence, loudness, speechiness, tempo, key, time_signature]
-    columns = ['name','album','artist','id','release_date','popularity','length','danceability','acousticness','energy','instrumentalness',
-               'liveness','valence','loudness','speechiness','tempo','key','time_signature']
+    columns = ['name', 'album', 'artist', 'id', 'release_date', 'popularity', 'length', 'danceability', 'acousticness',
+               'energy', 'instrumentalness',
+               'liveness', 'valence', 'loudness', 'speechiness', 'tempo', 'key', 'time_signature']
     return track, columns
 
 
@@ -63,7 +63,6 @@ def get_tracks_mood(tracks_ids, sp):
 
 
 def get_user_tracks(sp):
-
     liked_tracks = sp.current_user_saved_tracks(limit=50)
     liked_tracks_ids = [liked_tracks['items'][n]['track']['uri'] for n in range(len(liked_tracks['items']))]
 
@@ -72,10 +71,10 @@ def get_user_tracks(sp):
 
 
 def get_proper_track(mood, sp):
-
     tracks = get_user_tracks(sp)
     mood_tracks_dict = get_tracks_mood(tracks, sp)
-    track_selection = mood_tracks_dict[mood].pop(random.randint(0, len(mood_tracks_dict[mood])-1))
+    print(mood_tracks_dict)
+    track_selection = mood_tracks_dict[mood].pop(random.randint(0, len(mood_tracks_dict[mood]) - 1))
 
     return track_selection
 

@@ -8,6 +8,7 @@ from flask_session import Session
 import spotipy
 
 from track_mood_processing import get_proper_track, get_track_info
+from users_mood import get_users_mood
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64)
@@ -100,11 +101,14 @@ def player():
     # tracks = spotify.current_user_saved_tracks()
     # pprint.pprint(tracks['items'][0]['track'])
 
-    track_id = get_proper_track("Happy", spotify)
+
+    users_mood = get_users_mood([[1, 0.4]])
+    print(users_mood)
+
+    track_id = get_proper_track(users_mood, spotify)
 
     track_name, album, artist, cover_url = get_track_info(track_id, spotify)
-
-    # device =
+    print("\n\n" + cover_url + "\n\n")
 
     spotify.start_playback(uris=[track_id])
 
