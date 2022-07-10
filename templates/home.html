@@ -1,0 +1,6 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>Hi {{spotify.me()["display_name"]}}
+    <small><a href="/sign_out">[sign out]</a></small></h2>
+    <a href="/play">play music</a>
+{% endblock content %}
